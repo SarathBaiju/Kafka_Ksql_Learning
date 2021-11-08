@@ -1,0 +1,58 @@
+To connect to ksql interactive CLI
+CMND: docker exec -it ksqldb-cli ksql http://ksqldb-server:8088
+******************************************************************************************
+
+If you want to select older data, you can configure ksqlDB to query the stream from the beginning. You must run this configuration before running the query:
+SET 'auto.offset.reset' = 'earliest';
+************************************************************************************
+
+CMND:  show streams;
+
+Output:
+
+ Stream Name         | Kafka Topic                 | Key Format | Value Format | Windowed
+------------------------------------------------------------------------------------------
+ ARTICLEIMPACTSTREAM | articleImpacts              | KAFKA      | JSON         | false
+ ARTICLESTREAM       | articles                    | KAFKA      | JSON         | false
+ KSQL_PROCESSING_LOG | default_ksql_processing_log | KAFKA      | JSON         | false
+ RIDERLOCATIONS      | locations                   | KAFKA      | JSON         | false
+------------------------------------------------------------------------------------------
+
+************************************************************************************************************************************
+
+CMND: PRINT 'articleImpacts' FROM BEGINNING LIMIT 10;
+(WHERE articleImpacts is the topic name)
+
+Output:
+
+rowtime: 2021/11/05 07:58:47.340 Z, key: <null>, value: {"ID":100,"ARTICLEID":1,"AMOUNT":100}, partition: 0
+rowtime: 2021/11/05 07:58:59.279 Z, key: <null>, value: {"ID":101,"ARTICLEID":1,"AMOUNT":50}, partition: 0
+rowtime: 2021/11/05 08:01:54.989 Z, key: <null>, value: {"ID":110,"ARTICLEID":1,"AMOUNT":50}, partition: 0
+rowtime: 2021/11/05 08:03:18.481 Z, key: <null>, value: {"ID":120,"ARTICLEID":10,"AMOUNT":60}, partition: 0
+
+*************************************************************************************************************************************
+
+CMND: show tables;
+
+Output:
+
+ Table Name             | Kafka Topic            | Key Format | Value Format | Windowed
+----------------------------------------------------------------------------------------
+ CURRENTLOCATION        | CURRENTLOCATION        | KAFKA      | JSON         | false
+ RIDERSNEARMOUNTAINVIEW | RIDERSNEARMOUNTAINVIEW | KAFKA      | JSON         | false
+----------------------------------------------------------------------------------------
+
+*************************************************************************************************************************************
+
+CMND: describe CURRENTLOCATION; 
+(To get information related to a table like column name,type, primary key etc..)
+
+Output:
+
+Name                 : CURRENTLOCATION
+ Field     | Type
+--------------------------------------------
+ PROFILEID | VARCHAR(STRING)  (primary key)
+ LA        | DOUBLE
+ LO        | DOUBLE
+--------------------------------------------

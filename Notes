@@ -1,0 +1,40 @@
+CREATE STREAM articleStream (articleId int key, name varchar)
+  WITH (KAFKA_TOPIC='articles', VALUE_FORMAT='json');
+  
+  insert into articleStream values(5, 'test')
+    insert into articleStream values(1, 'test1')
+  
+  CREATE table ARTICLE (articleId int primary key,name varchar)
+  WITH (KAFKA_TOPIC='articles', VALUE_FORMAT='json', partitions=1);
+  
+  
+  
+CREATE STREAM articleImpactStream (id int key, articleId int, amount int)
+  WITH (kafka_topic='articleImpacts', value_format='json', partitions=1);  
+  
+  insert into articleImpactStream values(2000, 1,50);
+  insert into articleImpactStream values(2001, 5,60);
+  insert into articleImpactStream values(2003, 1,50);
+  insert into articleImpactStream values(2004, 5,20);
+  
+  SET 'ksql.query.pull.table.scan.enabled'='true';
+  select * from article emit changes ;
+  
+  
+  
+  CREATE STREAM articleImpactValidStream2 AS 
+   SELECT a.articleId, b.name, a.amount
+  FROM articleImpactStream a
+  inner  JOIN articleStream b WITHIN 300 seconds ON a.articleId = b.articleId
+
+ CREATE STREAM movieRatingStream AS 
+  SELECT ratings.movie_id AS ID, title, release_year, rating
+   FROM ratings
+   LEFT JOIN movies ON ratings.movie_id = movies.id
+   EMIT CHANGES LIMIT 9;
+	
+	
+	----------------
+	PRINT 'articleImpacts' FROM BEGINNING LIMIT 10;
+	
+	kafka-topics.sh --delete --zookeeper localhost:2181 --topic articles
