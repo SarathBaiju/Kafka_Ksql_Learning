@@ -1,0 +1,20 @@
+---> To enter ksqldb-cli
+
+docker exec -it ksqldb-cli ksql http://ksqldb-server:8088
+
+
+---> To create custom type
+CREATE TYPE Country_CDC AS 
+	STRUCT<Id integer, Name varchar, PublicId integer>;
+
+---> This will create a stream from existing topic
+create stream country_stream (before Country_CDC, after Country_CDC)
+with(kafka_topic='private.db.organization.dbo.Countries.v1', value_format='avro')
+
+--> This will create a new stream along with a new kafka_topic. Here it tranform existing stream of nested structure to flatern structure
+CREATE STREAM COUNTRY_STREAM_FLAT with(kafka_topic='country_test') AS
+	SELECT after->Id as id, 
+			after->Name as name
+	FROM country_stream;
+	
+
